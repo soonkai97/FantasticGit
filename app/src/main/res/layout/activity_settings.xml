@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/setting_image"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#542A9E"
+    tools:context=".SettingsActivity">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/a">
+
+
+    </de.hdodenhof.circleimageview.CircleImageView>
+
+    <TextView
+        android:id="@+id/settings_displayname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="200dp"
+        android:text="@string/display_name"
+        android:textColor="#FFFFFF"
+        android:textSize="30dp" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hi_there_i_am_using_lapit_chat_app"
+        android:textSize="20dp"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="250dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/setting_imagebtn"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="500dp"
+        android:backgroundTint="#FFFFFF"
+        android:text="@string/change_image"
+        android:textColor="#9C27B0"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/settings_statusbtn"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="550dp"
+        android:backgroundTint="#FB0B0B"
+        android:text="@string/change_status"
+        android:textColor="#FFFFFF" />
+
+</RelativeLayout>

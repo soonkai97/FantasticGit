@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "237320052914",
+    "firebase_url": "https://fantansticgit.firebaseio.com",
+    "project_id": "fantansticgit",
+    "storage_bucket": "fantansticgit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237320052914:android:4edf7b4b4d493402a069ab",
+        "android_client_info": {
+          "package_name": "com.example.lapitchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "237320052914-i86f2cqsdeupegvnds35crnuddut582q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjipchzP7sgWUxSS3rYbrC0nqGfkUqrSw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "237320052914-i86f2cqsdeupegvnds35crnuddut582q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
