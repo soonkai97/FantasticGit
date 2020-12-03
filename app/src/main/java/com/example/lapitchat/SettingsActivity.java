@@ -63,8 +63,8 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        getSupportActionBar().setTitle("Account Settings");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setTitle("Account Settings");
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDisplayImage = (CircleImageView) findViewById(R.id.image);
         mName = (TextView) findViewById(R.id.settings_displayname);
