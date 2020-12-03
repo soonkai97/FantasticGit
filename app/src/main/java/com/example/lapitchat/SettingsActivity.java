@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -53,11 +57,14 @@ public class SettingsActivity extends AppCompatActivity {
 
     // Storage Firebase
     private StorageReference mImageStorage;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        getSupportActionBar().setTitle("Account Settings");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDisplayImage = (CircleImageView) findViewById(R.id.image);
         mName = (TextView) findViewById(R.id.settings_displayname);
@@ -66,10 +73,16 @@ public class SettingsActivity extends AppCompatActivity {
         mStatusBtn = (Button) findViewById(R.id.settings_statusbtn);
         mImageBtn = (Button) findViewById(R.id.setting_imagebtn);
         mImageStorage = FirebaseStorage.getInstance().getReference();
-
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-
         String current_uid = mCurrentUser.getUid();
+
+        StorageReference profileImage  = mImageStorage.child("profile_images").child(current_uid + ".jpg");
+        profileImage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Picasso.get().load(uri).into(mDisplayImage);
+            }
+        });
 
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
 
@@ -106,16 +119,12 @@ public class SettingsActivity extends AppCompatActivity {
         mImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                  Intent imageIntent = new Intent();
-                  imageIntent.setType("image/*");
-                  imageIntent.setAction(Intent.ACTION_GET_CONTENT);
+                Intent imageIntent = new Intent();
+                imageIntent.setType("image/*");
+                imageIntent.setAction(Intent.ACTION_GET_CONTENT);
 
-                  startActivityForResult(Intent.createChooser(imageIntent,"Select Image"), GALLERY_PICK);
+                startActivityForResult(Intent.createChooser(imageIntent,"Select Image"), GALLERY_PICK);
 
-
-              /*  CropImage.activity()
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .start(SettingsActivity.this);*/
             }
         });
     }
@@ -138,19 +147,26 @@ public class SettingsActivity extends AppCompatActivity {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
+
                 Uri resultUri = result.getUri();
 
-                StorageReference filepath = mImageStorage.child("profile_images").child(random()+ ".jpg");
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                String current_user_id = mCurrentUser.getUid();
+
+                final StorageReference filepath = mImageStorage.child("profile_images").child(current_user_id + ".jpg");
+                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(SettingsActivity.this, "working", Toast.LENGTH_LONG).show();
-
-                        } else {
-                            Toast.makeText(SettingsActivity.this, "Error in uploading", Toast.LENGTH_LONG).show();
-                        }
-
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Picasso.get().load(uri).into(mDisplayImage);
+                            }
+                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(SettingsActivity.this, "Error in uploading", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -160,6 +176,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
     }
+
+
     public static String random (){
         Random generator = new Random();
         StringBuilder randomStringBuilder = new StringBuilder();
@@ -172,6 +190,3 @@ public class SettingsActivity extends AppCompatActivity {
         return randomStringBuilder.toString();
     }
 }
-
-
-
