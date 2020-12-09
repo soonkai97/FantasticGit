@@ -25,12 +25,11 @@
         <activity android:name=".StatusActivity"
             android:parentActivityName=".SettingsActivity"></activity>
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".MainActivity" />
         <activity
             android:name=".RegisterActivity"
-            android:parentActivityName=".StartActivity" />
-        <activity android:name=".StartActivity" />
-        <activity android:name=".MainActivity">
+            android:parentActivityName=".LoginActivity" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -20,4 +20,9 @@
     <string name="change_status">Change Status</string>
     <string name="change_image">Change Image</string>
 
+    <string name="biometric_title">Lapitchat</string>
+    <string name="biometric_subtitle">Confirm fingerprint to continue </string>
+
+    <string name="biometric_negative_button_text">CANCEL</string>
+
 </resources>
