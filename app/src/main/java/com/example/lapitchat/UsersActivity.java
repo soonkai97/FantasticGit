@@ -6,6 +6,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -69,7 +71,17 @@ public class UsersActivity extends AppCompatActivity {
             protected void onBindViewHolder(@NonNull UsersViewHolder usersViewHolder, int i, @NonNull Users users) {
                 usersViewHolder.setName(users.getName());
                 usersViewHolder.setUserStatus(users.getStatus());
-                usersViewHolder.setUserImage(users.getImage());
+                usersViewHolder.setUserImage(users.getImage(),getApplicationContext());
+
+                final String user_id = getRef(i).getKey();
+                usersViewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent profileIntent = new Intent(UsersActivity.this,ProfileActivity.class);
+                        profileIntent.putExtra("user_id",user_id);
+                        startActivity(profileIntent);
+                    }
+                });
             }
         };
         mUserList.setAdapter(firebaseRecyclerAdapter);
@@ -100,7 +112,7 @@ public class UsersActivity extends AppCompatActivity {
             userStatusView.setText(status);
         }
 
-        public void setUserImage(String image) {
+        public void setUserImage(String image, Context applicationContext) {
             final CircleImageView userImageView = mView.findViewById(R.id.user_single_image);
             mImageStorage = FirebaseStorage.getInstance().getReference();
             mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
