@@ -34,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog mLoginProgress;
     private FirebaseAuth mAuth;
     private TextView forget;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +106,8 @@ public class LoginActivity extends AppCompatActivity {
                 passwordResetDialog.create().show();
             }
         });}
+
+
 
 
     private void loginUser(String email, String password) {
