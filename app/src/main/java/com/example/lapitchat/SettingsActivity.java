@@ -154,11 +154,14 @@ public class SettingsActivity extends AppCompatActivity {
 
                 final StorageReference filepath = mImageStorage.child("profile_images").child(current_user_id + ".jpg");
                 filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
                         filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
+
                                 Picasso.get().load(uri).into(mDisplayImage);
                             }
                         });

@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,14 +15,25 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UsersActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private RecyclerView mUserList;
     private DatabaseReference mUserDatabase;
     private FirebaseRecyclerAdapter<Users, UsersViewHolder> firebaseRecyclerAdapter;
+    private StorageReference mImageStorage;
+
+    private FirebaseUser mCurrentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +69,7 @@ public class UsersActivity extends AppCompatActivity {
             protected void onBindViewHolder(@NonNull UsersViewHolder usersViewHolder, int i, @NonNull Users users) {
                 usersViewHolder.setName(users.getName());
                 usersViewHolder.setUserStatus(users.getStatus());
+                usersViewHolder.setUserImage(users.getImage());
             }
         };
         mUserList.setAdapter(firebaseRecyclerAdapter);
@@ -85,5 +98,20 @@ public class UsersActivity extends AppCompatActivity {
         public void setUserStatus(String status) {
             TextView userStatusView = mView.findViewById(R.id.user_single_status);
             userStatusView.setText(status);
+        }
+
+        public void setUserImage(String image) {
+            final CircleImageView userImageView = mView.findViewById(R.id.user_single_image);
+            mImageStorage = FirebaseStorage.getInstance().getReference();
+            mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String current_uid = mCurrentUser.getUid();
+
+            StorageReference profileImage  = mImageStorage.child("profile_images").child(current_uid + ".jpg");
+            profileImage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Picasso.get().load(uri).into(userImageView);
+                }
+            });
         }
     }}
