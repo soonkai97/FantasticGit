@@ -21,6 +21,8 @@ public class UsersActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private RecyclerView mUserList;
     private DatabaseReference mUserDatabase;
+    private FirebaseRecyclerAdapter<Users, UsersViewHolder> firebaseRecyclerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,38 +38,43 @@ public class UsersActivity extends AppCompatActivity {
         mUserList.setLayoutManager(new LinearLayoutManager(this));
 
 
-    }
-    @Override
-    protected void onStart(){
-        super.onStart();
-
         FirebaseRecyclerOptions<Users> options =
                 new FirebaseRecyclerOptions.Builder<Users>()
                         .setQuery(mUserDatabase, Users.class)
                         .build();
 
-        FirebaseRecyclerAdapter<Users, UsersViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Users, UsersViewHolder>(options) {
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Users, UsersViewHolder>(options) {
+            @NonNull
             @Override
-            public UsersViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
+            public UsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.users_single_layout, parent, false);
 
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.users_single_layout,parent,false);
                 return new UsersViewHolder(view);
             }
+
             @Override
-            protected void onBindViewHolder(UsersViewHolder usersViewHolder, int i, Users users) {
+            protected void onBindViewHolder(@NonNull UsersViewHolder usersViewHolder, int i, @NonNull Users users) {
                 usersViewHolder.setName(users.getName());
                 usersViewHolder.setUserStatus(users.getStatus());
             }
-
-
-            };
+        };
         mUserList.setAdapter(firebaseRecyclerAdapter);
+    }
+@Override
+    protected void onStart() {
+    super.onStart();
+    firebaseRecyclerAdapter.startListening();
+}
+        @Override
+    protected void onStop() {
+        super.onStop();
+        firebaseRecyclerAdapter.stopListening();
     }
     public class UsersViewHolder extends RecyclerView.ViewHolder{
         View mView;
         public UsersViewHolder(View itemView){
             super(itemView);
-
             mView = itemView;
         }
         public void setName(String name){
@@ -79,5 +86,4 @@ public class UsersActivity extends AppCompatActivity {
             TextView userStatusView = mView.findViewById(R.id.user_single_status);
             userStatusView.setText(status);
         }
-    }
-}
+    }}
