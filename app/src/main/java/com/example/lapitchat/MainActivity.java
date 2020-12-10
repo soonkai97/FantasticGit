@@ -28,8 +28,6 @@ public class MainActivity extends AppCompatActivity {
     private SectionPagerAdapter mSectionPagerAdapter;
     private TabLayout mTabLayout;
 
-    private DatabaseReference mUserRef;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("Lapit Chat");
 
-        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
         mViewPager = (ViewPager) findViewById(R.id.tabPager);
         mSectionPagerAdapter = new SectionPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionPagerAdapter);
@@ -62,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
         {
             sendToStart();
         }
-        else {
-            mUserRef.child("online").setValue(true);
-        }
     }
 
     @Override
@@ -73,10 +67,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if(currentUser !=null)
-        {
-            mUserRef.child("online").setValue(false);
-        }
     }
 
     private void sendToStart() {

@@ -1,10 +1,13 @@
 package com.example.lapitchat;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -117,18 +120,40 @@ public class FriendsFragment extends Fragment {
                 return new FriendsFragment.FriendsViewHolder(view);
             }
             @Override
-            protected void onBindViewHolder(@NonNull final FriendsViewHolder friendsRecyclerViewAdapter, int position, @NonNull final Friends friends) {
-                friendsRecyclerViewAdapter.setDate(friends.getDate());
-                String list_user_id = getRef(position).getKey();
+            protected void onBindViewHolder(@NonNull final FriendsViewHolder FriendsViewHolder, final int position, @NonNull final Friends friends) {
+                FriendsViewHolder.setDate(friends.getDate());
+                final String list_user_id = getRef(position).getKey();
                 mUserDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         String userName = snapshot.child("name").getValue().toString();
                         String userThumb = snapshot.child("thumb_image").getValue().toString();
 
-                        friendsRecyclerViewAdapter.setName(userName);
+                        FriendsViewHolder.setName(userName);
+                        FriendsViewHolder.setUserImage(userThumb,getContext());
 
-                        friendsRecyclerViewAdapter.setUserImage(userThumb,getContext());
+                        FriendsViewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                                CharSequence options[] = new CharSequence[]{"Open Profile", "Send Message"};
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+                                builder.setTitle("Select Options");
+                                builder.setItems(options, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        if (i == 0)
+                                        {
+                                            Intent profileIntent = new Intent(getContext(),ProfileActivity.class);
+                                            profileIntent.putExtra("user_id",list_user_id);
+                                            startActivity(profileIntent);
+                                        }
+                                    }
+                                });
+                            }
+                        });
                     }
 
                     @Override
