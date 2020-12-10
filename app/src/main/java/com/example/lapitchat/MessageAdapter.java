@@ -21,7 +21,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private List<Message> mMessageList;
     private FirebaseAuth mAuth;
-
+    private String mCurrentUserId;
     public MessageAdapter(List<Message> mMessageList)
     {
         this.mMessageList = mMessageList;
@@ -51,11 +51,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public void onBindViewHolder(MessageViewHolder viewHolder, int i) {
-
-        String current_user_id = mAuth.getCurrentUser().getUid();
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
         Message c = mMessageList.get(i);
         String from_user = c.getFrom();
-        if(from_user.equals(current_user_id))
+        if(from_user != null && from_user.equals(mCurrentUserId))
         {
             viewHolder.messageText.setBackgroundColor(Color.WHITE);
             viewHolder.messageText.setTextColor(Color.BLACK);

@@ -189,7 +189,7 @@ public class ChatActivity extends AppCompatActivity {
             String current_user_ref = "message/" + mCurrentUserId + "/" +mChatUser;
             String chat_user_ref = "message/" + mChatUser + "/" +mCurrentUserId;
 
-            DatabaseReference user_message_push = mRoofRef.child("messages").child(mCurrentUserId).child(mChatUser).push();
+            DatabaseReference user_message_push = mRoofRef.child("message").child(mCurrentUserId).child(mChatUser).push();
             String push_id = user_message_push.getKey();
 
             Map messageMap = new HashMap();
