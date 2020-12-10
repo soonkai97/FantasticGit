@@ -6,14 +6,20 @@ import android.os.Bundle;
 
 public class Message{
 
-    private String message, type;
+    private String message, type , from;
     private long time;
 
-    public Message (String message, long time, String type)
+    public Message()
+    {
+
+    }
+
+    public Message (String message, long time, String type, String from)
     {
         this.message = message;
         this.time = time;
         this.type = type;
+        this.from = from;
     }
 
     public String getMessage()
@@ -44,6 +50,16 @@ public class Message{
     public void setType(String type)
     {
         this.type= type;
+    }
+
+    public String getFrom()
+    {
+        return from;
+    }
+
+    public void setFrom(String from)
+    {
+        this.from= from;
     }
 
 

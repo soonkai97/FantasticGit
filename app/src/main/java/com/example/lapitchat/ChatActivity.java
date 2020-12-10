@@ -148,7 +148,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void loadMessages() {
-        mRoofRef.child("messages").child(mCurrentUserId).child(mChatUser).addChildEventListener(new ChildEventListener() {
+        mRoofRef.child("message").child(mCurrentUserId).child(mChatUser).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
@@ -196,10 +196,13 @@ public class ChatActivity extends AppCompatActivity {
             messageMap.put("message",message);
             messageMap.put("type", "text");
             messageMap.put("time", ServerValue.TIMESTAMP);
+            messageMap.put("from",mCurrentUserId);
 
             Map messageUserMap = new HashMap();
             messageUserMap.put(current_user_ref+ "/" + push_id, messageMap);
             messageUserMap.put(chat_user_ref + "/" + push_id,messageMap);
+
+            mChatMessageView.setText("");
 
             mRoofRef.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
                 @Override
