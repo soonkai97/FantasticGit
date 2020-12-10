@@ -120,8 +120,8 @@ public class FriendsFragment extends Fragment {
                 return new FriendsFragment.FriendsViewHolder(view);
             }
             @Override
-            protected void onBindViewHolder(@NonNull final FriendsViewHolder FriendsViewHolder, final int position, @NonNull final Friends friends) {
-                FriendsViewHolder.setDate(friends.getDate());
+            protected void onBindViewHolder(@NonNull final FriendsViewHolder friendsViewHolder, final int position, @NonNull final Friends friends) {
+                friendsViewHolder.setDate(friends.getDate());
                 final String list_user_id = getRef(position).getKey();
                 mUserDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
@@ -129,14 +129,14 @@ public class FriendsFragment extends Fragment {
                         String userName = snapshot.child("name").getValue().toString();
                         String userThumb = snapshot.child("thumb_image").getValue().toString();
 
-                        FriendsViewHolder.setName(userName);
-                        FriendsViewHolder.setUserImage(userThumb,getContext());
+                        friendsViewHolder.setName(userName);
+                        friendsViewHolder.setUserImage(userThumb,getContext());
 
-                        FriendsViewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                        friendsViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
 
-                                CharSequence options[] = new CharSequence[]{"Open Profile", "Send Message"};
+                                /*CharSequence options[] = new CharSequence[]{"Open Profile", "Send Message"};
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
                                 builder.setTitle("Select Options");
@@ -145,14 +145,14 @@ public class FriendsFragment extends Fragment {
                                     public void onClick(DialogInterface dialogInterface, int i) {
 
                                         if (i == 0)
-                                        {
+                                        {*/
                                             Intent profileIntent = new Intent(getContext(),ProfileActivity.class);
                                             profileIntent.putExtra("user_id",list_user_id);
                                             startActivity(profileIntent);
                                         }
-                                    }
-                                });
-                            }
+                                    //}
+                                //});
+                            //}
                         });
                     }
 
