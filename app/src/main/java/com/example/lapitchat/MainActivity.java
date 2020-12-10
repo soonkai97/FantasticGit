@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("Lapit Chat");
 
+
         mViewPager = (ViewPager) findViewById(R.id.tabPager);
         mSectionPagerAdapter = new SectionPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionPagerAdapter);

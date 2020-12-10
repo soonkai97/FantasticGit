@@ -126,7 +126,7 @@ public class FriendsFragment extends Fragment {
                 mUserDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String userName = snapshot.child("name").getValue().toString();
+                        final String userName = snapshot.child("name").getValue().toString();
                         String userThumb = snapshot.child("thumb_image").getValue().toString();
 
                         friendsViewHolder.setName(userName);
@@ -136,19 +136,11 @@ public class FriendsFragment extends Fragment {
                             @Override
                             public void onClick(View v) {
 
-                                /*CharSequence options[] = new CharSequence[]{"Open Profile", "Send Message"};
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                Intent chatIntent = new Intent(getContext(),ChatActivity.class);
+                                chatIntent.putExtra("user_id",list_user_id);
+                                chatIntent.putExtra("user_name", userName);
 
-                                builder.setTitle("Select Options");
-                                builder.setItems(options, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                                        if (i == 0)
-                                        {*/
-                                            Intent profileIntent = new Intent(getContext(),ProfileActivity.class);
-                                            profileIntent.putExtra("user_id",list_user_id);
-                                            startActivity(profileIntent);
+                                startActivity(chatIntent);
                                         }
                                     //}
                                 //});
