@@ -19,7 +19,7 @@
 
     <LinearLayout
         android:id="@+id/LinearLayout"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
@@ -39,7 +39,7 @@
 
         <EditText
             android:id="@+id/chat_message_view"
-            android:layout_width="300dp"
+            android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:hint="Enter Message"
             android:paddingStart="10dp"
