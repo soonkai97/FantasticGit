@@ -113,7 +113,6 @@ public class ChatsFragment extends Fragment {
 
                     }
                 });
-                //mConvList.setAdapter(firebaseConvAdapter);
                 mUserDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -133,7 +132,6 @@ public class ChatsFragment extends Fragment {
                                 startActivity(chatIntent);
                             }
                         });
-                        //mConvList.setAdapter(firebaseConvAdapter);
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {

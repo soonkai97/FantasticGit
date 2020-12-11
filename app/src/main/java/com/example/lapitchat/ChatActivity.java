@@ -341,7 +341,7 @@ public class ChatActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
                     if(task.isSuccessful()){
-                        String download_url = task.getResult().getStorage().getDownloadUrl().toString();
+                        final String download_url = task.getResult().getStorage().getDownloadUrl().toString();
 
                         Map messageMap = new HashMap();
                         messageMap.put("message",download_url);
