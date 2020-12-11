@@ -32,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -325,6 +326,8 @@ public class ChatActivity extends AppCompatActivity {
             final String current_user_ref = "message/" + mCurrentUserId + "/" + mChatUser;
             final String chat_user_ref = "message/" + mChatUser + "/" + mCurrentUserId;
 
+            mImageStorage = FirebaseStorage.getInstance().getReference();
+
             DatabaseReference user_message_push = mRoofRef.child("message").child(mCurrentUserId).child(mChatUser).push();
             final String push_id = user_message_push.getKey();
 
@@ -334,7 +337,8 @@ public class ChatActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
                     if(task.isSuccessful()){
-                        String download_url = task.getResult().getUploadSessionUri().toString();
+                        String download_url = task.getResult().getStorage().getDownloadUrl().toString();
+                        //Uri download_url = Uri.parse(task.getResult().getStorage().getDownloadUrl().toString());
 
                         Map messageMap = new HashMap();
                         messageMap.put("message",download_url);
