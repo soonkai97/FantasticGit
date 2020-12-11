@@ -19,8 +19,32 @@
         android:layout_marginTop="10dp"
         android:layout_toRightOf="@+id/message_profile_layout"
         android:background="@drawable/message_text_background"
+        android:layout_below="@+id/name_text_layout"
         android:padding="10dp"
-        android:text="TextView"
+        android:text="Message Text"
         android:textColor="#FAF8F8" />
+
+    <TextView
+        android:id="@+id/name_text_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_toRightOf="@+id/message_profile_layout"
+        android:text="Display Name"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/time_text_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/name_text_layout"
+        android:layout_marginLeft="20dp"
+        android:text="00:00" />
+
+    <ImageView
+        android:id="@+id/message_image_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 
 </RelativeLayout>
