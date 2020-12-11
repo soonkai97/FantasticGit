@@ -63,8 +63,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public void onBindViewHolder(final MessageViewHolder viewHolder, int i) {
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserId = mAuth.getCurrentUser().getUid();
+        //mAuth = FirebaseAuth.getInstance();
+        //mCurrentUserId = mAuth.getCurrentUser().getUid();
         Message c = mMessageList.get(i);
         String from_user = c.getFrom();
         String message_type = c.getType();

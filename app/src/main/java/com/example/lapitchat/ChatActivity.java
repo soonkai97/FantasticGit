@@ -68,6 +68,7 @@ public class ChatActivity extends AppCompatActivity {
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +111,8 @@ public class ChatActivity extends AppCompatActivity {
         mMessagesList.setLayoutManager(mLinearLayout);
         mMessagesList.setAdapter(mAdapter);
 
+        mImageStorage = FirebaseStorage.getInstance().getReference();
+
         loadMessages();
 
         mTitleView.setText(userName);
@@ -118,7 +121,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                String image = snapshot.child("image").toString();
+                String image = snapshot.child("image").getValue().toString();
             }
 
             @Override
@@ -132,9 +135,12 @@ public class ChatActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.hasChild(mChatUser))
                 {
+                    Map chatAddMap = new HashMap();
+                    chatAddMap.put("timestamp",ServerValue.TIMESTAMP);
+
                     Map chatUserMap = new HashMap();
-                    chatUserMap.put("Chat/" +mCurrentUserId + "/"+ mChatUser, "a");
-                    chatUserMap.put("Chat/" + mChatUser + "/" + mCurrentUserId,"b");
+                    chatUserMap.put("Chat/" +mCurrentUserId + "/"+ mChatUser, chatAddMap);
+                    chatUserMap.put("Chat/" + mChatUser + "/" + mCurrentUserId,chatAddMap);
 
                     mRoofRef.updateChildren(chatUserMap, new DatabaseReference.CompletionListener() {
                         @Override
@@ -169,7 +175,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent galleryIntent = new Intent();
-                galleryIntent.setType("image/n");
+                galleryIntent.setType("image/*");
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(galleryIntent,"Select Image"), GALLERY_PICK);
 
@@ -199,7 +205,7 @@ public class ChatActivity extends AppCompatActivity {
                     messageList.add(itemPos++,message);
                 }
                 else {
-                    mPrevKey = messageKey;
+                    mPrevKey = mLastKey;
                 }
                 if (itemPos == 1){
 
@@ -209,7 +215,7 @@ public class ChatActivity extends AppCompatActivity {
                 Log.d("TOTALKEYS","Last Key : " + mLastKey + " | Prev Key : " + mPrevKey + " | Message Key : " + messageKey);
                 mAdapter.notifyDataSetChanged();
 
-                mMessagesList.scrollToPosition(messageList.size() - 1);
+                //mMessagesList.scrollToPosition(messageList.size() - 1);
                 mRefreshLayout.setRefreshing(false);
                 mLinearLayout.scrollToPositionWithOffset(10,0);
             }
@@ -326,8 +332,6 @@ public class ChatActivity extends AppCompatActivity {
             final String current_user_ref = "message/" + mCurrentUserId + "/" + mChatUser;
             final String chat_user_ref = "message/" + mChatUser + "/" + mCurrentUserId;
 
-            mImageStorage = FirebaseStorage.getInstance().getReference();
-
             DatabaseReference user_message_push = mRoofRef.child("message").child(mCurrentUserId).child(mChatUser).push();
             final String push_id = user_message_push.getKey();
 
@@ -338,7 +342,6 @@ public class ChatActivity extends AppCompatActivity {
 
                     if(task.isSuccessful()){
                         String download_url = task.getResult().getStorage().getDownloadUrl().toString();
-                        //Uri download_url = Uri.parse(task.getResult().getStorage().getDownloadUrl().toString());
 
                         Map messageMap = new HashMap();
                         messageMap.put("message",download_url);

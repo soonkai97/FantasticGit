@@ -40,6 +40,11 @@ public class ChatsFragment extends Fragment {
     private View mMainView;
     private FirebaseRecyclerAdapter <Conv, ConvViewHolder> firebaseConvAdapter;
 
+    public ChatsFragment()
+    {
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -71,7 +76,7 @@ public class ChatsFragment extends Fragment {
             @Override
             public ConvViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.message_single_layout, parent, false);
+                        .inflate(R.layout.users_single_layout, parent, false);
 
                 return new ChatsFragment.ConvViewHolder(view);
             }
@@ -121,17 +126,14 @@ public class ChatsFragment extends Fragment {
 
                         convViewHolder.mView.setOnClickListener(new View.OnClickListener(){
                             @Override
-                            public void onClick(View view)
-                            {
-                                Intent chatIntent = new Intent(getContext(),ChatActivity.class);
-                                chatIntent.putExtra("user_id",list_user_id);
-                                chatIntent.putExtra("user_name",userName);
+                            public void onClick(View view) {
+                                Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                                chatIntent.putExtra("user_id", list_user_id);
+                                chatIntent.putExtra("user_name", userName);
                                 startActivity(chatIntent);
-
                             }
-
                         });
-                        mConvList.setAdapter(firebaseConvAdapter);
+                        //mConvList.setAdapter(firebaseConvAdapter);
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
@@ -142,10 +144,10 @@ public class ChatsFragment extends Fragment {
             }
 
         };
-        //mConvList.setAdapter(firebaseConvAdapter);
+        mConvList.setAdapter(firebaseConvAdapter);
         return mMainView;
-
     }
+
     @Override
     public void onStart() {
         super.onStart();
