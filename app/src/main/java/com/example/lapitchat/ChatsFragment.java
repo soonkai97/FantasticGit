@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +27,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatsFragment extends Fragment {
@@ -35,10 +38,7 @@ public class ChatsFragment extends Fragment {
     private FirebaseAuth mAuth;
     private String mCurrent_user_id;
     private View mMainView;
-
-    public ChatsFragment() {
-        // Required empty public constructor
-    }
+    private FirebaseRecyclerAdapter <Conv, ConvViewHolder> firebaseConvAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,7 +50,7 @@ public class ChatsFragment extends Fragment {
         mConvDatabase = FirebaseDatabase.getInstance().getReference().child("Chat").child(mCurrent_user_id);
         mConvDatabase.keepSynced(true);
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
-        mMessageDatabase = FirebaseDatabase.getInstance().getReference().child("messages").child(mCurrent_user_id);
+        mMessageDatabase = FirebaseDatabase.getInstance().getReference().child("message").child(mCurrent_user_id);
         mUserDatabase.keepSynced(true);
 
         LinearLayoutManager LinearLayoutManager = new LinearLayoutManager(getContext());
@@ -60,23 +60,25 @@ public class ChatsFragment extends Fragment {
         mConvList.setHasFixedSize(true);
         mConvList.setLayoutManager(LinearLayoutManager);
 
-        return mMainView;
-    }
-    @Override
-    public void onStart() {
-        super.onStart();
-
         Query conversationQuery = mConvDatabase.orderByChild("timestamp");
-        FirebaseRecyclerAdapter <Conv, ConvViewHolder> firebaseConvAdapter = new FirebaseRecyclerAdapter<Conv, ConvViewHolder>(
-                Conv.class,
-                R.layout.users_single_layout,
-                ConvViewHolder.class,
-                conversationQuery
-        ) {
-            @Override
-            protected void onBindViewHolder(@NonNull final ConvViewHolder convViewHolder, int position, @NonNull Conv model) {
-                final String list_user_id = getRef(position).getKey();
+        FirebaseRecyclerOptions<Conv> options =
+                new FirebaseRecyclerOptions.Builder<Conv>()
+                        .setQuery(conversationQuery, Conv.class)
+                        .build();
 
+        firebaseConvAdapter = new FirebaseRecyclerAdapter<Conv, ConvViewHolder>(options) {
+            @NonNull
+            @Override
+            public ConvViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.message_single_layout, parent, false);
+
+                return new ChatsFragment.ConvViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull final ConvViewHolder convViewHolder,final int position, @NonNull final Conv conv) {
+                final String list_user_id = getRef(position).getKey();
                 Query lastMessageQuery = mMessageDatabase.child(list_user_id).limitToLast(1);
 
                 lastMessageQuery.addChildEventListener(new ChildEventListener() {
@@ -106,7 +108,7 @@ public class ChatsFragment extends Fragment {
 
                     }
                 });
-
+                //mConvList.setAdapter(firebaseConvAdapter);
                 mUserDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -118,15 +120,18 @@ public class ChatsFragment extends Fragment {
                         convViewHolder.setUserImage(userThumb,getContext());
 
                         convViewHolder.mView.setOnClickListener(new View.OnClickListener(){
+                            @Override
                             public void onClick(View view)
                             {
                                 Intent chatIntent = new Intent(getContext(),ChatActivity.class);
                                 chatIntent.putExtra("user_id",list_user_id);
                                 chatIntent.putExtra("user_name",userName);
                                 startActivity(chatIntent);
+
                             }
 
                         });
+                        mConvList.setAdapter(firebaseConvAdapter);
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
@@ -135,13 +140,23 @@ public class ChatsFragment extends Fragment {
 
                 });
             }
-        };
 
-        mConvList.setAdapter(firebaseConvAdapter);
+        };
+        //mConvList.setAdapter(firebaseConvAdapter);
+        return mMainView;
 
     }
-
-    public static class ConvViewHolder extends RecylcerView.ViewHolder{
+    @Override
+    public void onStart() {
+        super.onStart();
+        firebaseConvAdapter.startListening();
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        firebaseConvAdapter.stopListening();
+    }
+    public class ConvViewHolder extends RecyclerView.ViewHolder{
         View mView;
 
         public ConvViewHolder(View itemView)
@@ -168,5 +183,6 @@ public class ChatsFragment extends Fragment {
             Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(userImageView);
 
         }
+
     }
 }
