@@ -1,64 +1,150 @@
 package com.example.lapitchat;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link RequestsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class RequestsFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public RequestsFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment RequestsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static RequestsFragment newInstance(String param1, String param2) {
-        RequestsFragment fragment = new RequestsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    private RecyclerView mRequestList;
+    private DatabaseReference mFriendDatabase;
+    private FirebaseAuth mAuth;
+    private String mCurrent_user_id;
+    private View mMainView;
+    private StorageReference mImageStorage;
+    private DatabaseReference mUserDatabase;
+    private FirebaseUser mCurrentUser;
+    private FirebaseRecyclerAdapter<Friends, RequestsFragment.FriendsViewHolder> friendsRecyclerViewAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        mMainView = inflater.inflate(R.layout.fragment_requests, container, false);
+        mRequestList = (RecyclerView) mMainView.findViewById(R.id.request_list);
+        mAuth = FirebaseAuth.getInstance();
+        mCurrent_user_id = mAuth.getCurrentUser().getUid();
+        mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mCurrent_user_id);
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+        mRequestList.setHasFixedSize(true);
+        mRequestList.setLayoutManager(new LinearLayoutManager(getContext()));
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_requests, container, false);
+
+        FirebaseRecyclerOptions<Friends> options =
+                new FirebaseRecyclerOptions.Builder<Friends>()
+                        .setQuery(mFriendDatabase, Friends.class)
+                        .build();
+
+        friendsRecyclerViewAdapter = new FirebaseRecyclerAdapter<Friends, RequestsFragment.FriendsViewHolder>(options) {
+            @NonNull
+            @Override
+            public RequestsFragment.FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.request_single_layout, parent, false);
+
+                return new FriendsViewHolder(view);
+            }
+            @Override
+            protected void onBindViewHolder(@NonNull final RequestsFragment.FriendsViewHolder friendsViewHolder, final int position, @NonNull final Friends friends) {
+                final String list_user_id = getRef(position).getKey();
+                mUserDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        final String userName = snapshot.child("name").getValue().toString();
+                        String userThumb = snapshot.child("thumb_image").getValue().toString();
+
+                        friendsViewHolder.setName(userName);
+                        friendsViewHolder.setUserImage(userThumb,getContext());
+
+                        friendsViewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                                Intent chatIntent = new Intent(getContext(),ProfileActivity.class);
+                                chatIntent.putExtra("user_id",list_user_id);
+                                chatIntent.putExtra("user_name", userName);
+
+                                startActivity(chatIntent);
+                            }
+                            //}
+                            //});
+                            //}
+                        });
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+
+
+        };
+        mRequestList.setAdapter(friendsRecyclerViewAdapter);
+        return mMainView;
     }
-}
+    @Override
+    public void onStart() {
+        super.onStart();
+        friendsRecyclerViewAdapter.startListening();
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        friendsRecyclerViewAdapter.stopListening();
+    }
+    public class FriendsViewHolder extends RecyclerView.ViewHolder{
+        View mView;
+        public FriendsViewHolder(View itemView){
+            super(itemView);
+            mView = itemView;
+        }
+        public void setName(String name){
+            TextView userNameView = mView.findViewById(R.id.single_name);
+            userNameView.setText(name);
+        }
+        public void setUserImage(String image, Context applicationContext) {
+            final CircleImageView userImageView = mView.findViewById(R.id.single_image);
+            mImageStorage = FirebaseStorage.getInstance().getReference();
+            mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String current_uid = mCurrentUser.getUid();
+
+            StorageReference profileImage  = mImageStorage.child("profile_images").child(current_uid + ".jpg");
+            profileImage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Picasso.get().load(uri).into(userImageView);
+                }
+            });
+        }}
+    }
