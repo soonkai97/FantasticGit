@@ -9,16 +9,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,11 +22,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -47,8 +39,6 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +54,6 @@ public class ChatActivity extends AppCompatActivity {
     private TextView mTitleView;
     private CircleImageView mProfileImage;
     private FirebaseAuth mAuth;
-    private FirebaseAuth firebaseAuth;
     private String mCurrentUserId;
     private ImageButton mChatAddBtn, mChatSendBtn;
     private EditText mChatMessageView;
@@ -80,11 +69,8 @@ public class ChatActivity extends AppCompatActivity {
     private String mPrevKey = "";
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
-    private boolean notify = false;
-    Uri image_rui = null;
-    private static final int IMAGE_PICK_CAMERA_CODE = 300;
-    private static final int IMAGE_PICK_GALLERY_CODE = 400;
-    protected FirebaseUser firebaseUser;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,8 +86,7 @@ public class ChatActivity extends AppCompatActivity {
         mRoofRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
+
         mChatUser= getIntent().getStringExtra("user_id");
         String userName = getIntent().getStringExtra("user_name");
 
@@ -190,32 +175,11 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                /*Intent galleryIntent = new Intent();
+                Intent galleryIntent = new Intent();
                 galleryIntent.setType("image/*");
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(galleryIntent,"Select Image"), GALLERY_PICK);*/
-                final CharSequence[] items = {"Camera", "Gallery", "Cancel"};
-                AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
-                builder.setTitle("Select Image");
-                builder.setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (items[which].equals("Camera")) {
+                startActivityForResult(Intent.createChooser(galleryIntent,"Select Image"), GALLERY_PICK);
 
-                                pickFromCamera();
-
-
-                        } else if (items[which].equals("Gallery")) {
-                            //startActivity(new Intent(MessageActivity.this, GallaryActivity.class));
-
-                            pickFromGallery();
-
-                        } else {
-                            dialog.dismiss();
-                        }
-                    }
-                });
-                builder.show();
             }
         });
 
@@ -359,7 +323,7 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    /*@Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -417,134 +381,5 @@ public class ChatActivity extends AppCompatActivity {
             });
 
         }
-    }*/
-    private void pickFromCamera()
-    {
-
-
-
-        ContentValues cv = new ContentValues();
-        image_rui = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, image_rui);
-        startActivityForResult(intent, IMAGE_PICK_CAMERA_CODE);
-
-    }
-    private void pickFromGallery()
-    {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, IMAGE_PICK_GALLERY_CODE);
-    }
-    private void sendCameraMessage() throws IOException {
-        final ProgressDialog progressDialog = new ProgressDialog(ChatActivity.this);
-        progressDialog.setTitle("sending image from camera");
-        progressDialog.show();
-
-
-        final String timeStamp = ""+System.currentTimeMillis();
-        String fileNameAndPath = "ChatImages/"+"post_"+timeStamp;
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image_rui);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        final byte[] data = baos.toByteArray();
-        StorageReference ref = FirebaseStorage.getInstance().getReference().child(fileNameAndPath);
-        ref.putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                progressDialog.dismiss();
-                Task<Uri>uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                while(!uriTask.isSuccessful());
-                String downloadURI = uriTask.getResult().toString();
-                if (uriTask.isSuccessful())
-                {
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-                    HashMap<String, Object> hashMap = new HashMap<>();
-                    hashMap.put("sender", firebaseUser.getUid());
-                    hashMap.put("receiver", getIntent().getStringExtra("id"));
-                    hashMap.put("message", downloadURI);
-                    hashMap.put("timestamp", timeStamp );
-                    hashMap.put("type", "image");
-
-                    databaseReference.child("message").push().setValue(hashMap);
-                }
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    private void sendImageMessage(Uri image_rui) throws IOException {
-
-        notify = true;
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Sending image...");
-        progressDialog.show();
-
-        final String timeStamp = ""+System.currentTimeMillis();
-        String fileNameAndPath = "ChatImages/"+"post_"+timeStamp;
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image_rui);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        final byte[] data = baos.toByteArray();
-        StorageReference ref = FirebaseStorage.getInstance().getReference().child(fileNameAndPath);
-        ref.putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                progressDialog.dismiss();
-                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                while(!uriTask.isSuccessful());
-                String downloadURI = uriTask.getResult().toString();
-                if (uriTask.isSuccessful())
-                {
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-                    HashMap<String, Object> hashMap = new HashMap<>();
-                    hashMap.put("sender", firebaseUser.getUid());
-                    hashMap.put("receiver", getIntent().getStringExtra("id"));
-                    hashMap.put("message", downloadURI);
-                    hashMap.put("timestamp", timeStamp);
-                    hashMap.put("type", "image");
-                    databaseReference.child("message").push().setValue(hashMap);
-
-                }
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
-        if(resultCode == RESULT_OK)
-        {
-            if(requestCode == IMAGE_PICK_GALLERY_CODE)
-            {
-
-                try {
-                    image_rui = data.getData();
-                    sendImageMessage(image_rui);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else if(requestCode == IMAGE_PICK_CAMERA_CODE)
-            {
-                try {
-                    sendCameraMessage();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 }
