@@ -112,18 +112,8 @@ public class UsersActivity extends AppCompatActivity {
             userStatusView.setText(status);
         }
 
-        public void setUserImage(String image, Context applicationContext) {
-            final CircleImageView userImageView = mView.findViewById(R.id.user_single_image);
-            mImageStorage = FirebaseStorage.getInstance().getReference();
-            mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-            String current_uid = mCurrentUser.getUid();
-
-            StorageReference profileImage  = mImageStorage.child("profile_images").child(current_uid + ".jpg");
-            profileImage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Picasso.get().load(uri).into(userImageView);
-                }
-            });
+        public void setUserImage(String thumb_image, Context applicationContext) {
+            CircleImageView userImageView = mView.findViewById(R.id.user_single_image);
+            Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(userImageView);
         }
     }}
