@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -64,8 +65,6 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        //getSupportActionBar().setTitle("Account Settings");
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDisplayImage = (CircleImageView) findViewById(R.id.image);
         mName = (TextView) findViewById(R.id.settings_displayname);
@@ -142,7 +141,6 @@ public class SettingsActivity extends AppCompatActivity {
                     .setAspectRatio(1, 1)
                     .start(this);
 
-            //Toast.makeText(SettingsActivity.this, imageUri, Toast.LENGTH_LONG).show();
 
         }
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -154,27 +152,47 @@ public class SettingsActivity extends AppCompatActivity {
                 String current_user_id = mCurrentUser.getUid();
 
                 final StorageReference filepath = mImageStorage.child("profile_images").child(current_user_id + ".jpg");
-                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
+                final UploadTask uploadTask = filepath.putFile(resultUri);
+
+
+                uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    public void onFailure(@NonNull Exception e)
+                    {
+                        String message = e.toString();
 
-                        downloadImageUrl = filepath.getDownloadUrl().toString();
-                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
+                    {
+
+                        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                             @Override
-                            public void onSuccess(Uri uri) {
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception
+                            {
+                                if (!task.isSuccessful())
+                                {
+                                    throw task.getException();
+                                }
 
-                                Picasso.get().load(uri).into(mDisplayImage);
-                                mUserDatabase.child("image").setValue(downloadImageUrl);
-                                mUserDatabase.child("thumb_image").setValue(downloadImageUrl);
-
+                                downloadImageUrl = filepath.getDownloadUrl().toString();
+                                return filepath.getDownloadUrl();
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task)
+                            {
+                                if (task.isSuccessful())
+                                {
+                                    downloadImageUrl = task.getResult().toString();
+                                    Picasso.get().load(downloadImageUrl).into(mDisplayImage);
+                                    mUserDatabase.child("image").setValue(downloadImageUrl);
+                                    mUserDatabase.child("thumb_image").setValue(downloadImageUrl);
+                                }
                             }
                         });
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(SettingsActivity.this, "Error in uploading", Toast.LENGTH_LONG).show();
                     }
                 });
 

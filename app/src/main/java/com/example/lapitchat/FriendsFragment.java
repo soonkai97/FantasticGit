@@ -30,6 +30,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -88,7 +90,7 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         final String userName = snapshot.child("name").getValue().toString();
-                        String userThumb = snapshot.child("thumb_image").getValue().toString();
+                        final String userThumb = snapshot.child("thumb_image").getValue().toString();
 
                         friendsViewHolder.setName(userName);
                         friendsViewHolder.setUserImage(userThumb,getContext());
@@ -102,10 +104,7 @@ public class FriendsFragment extends Fragment {
                                 chatIntent.putExtra("user_name", userName);
 
                                 startActivity(chatIntent);
-                                        }
-                                    //}
-                                //});
-                            //}
+                            }
                         });
 
                     }
@@ -146,18 +145,8 @@ public class FriendsFragment extends Fragment {
             TextView userNameView = mView.findViewById(R.id.user_single_name);
             userNameView.setText(name);
         }
-        public void setUserImage(String image, Context applicationContext) {
-            final CircleImageView userImageView = mView.findViewById(R.id.user_single_image);
-            mImageStorage = FirebaseStorage.getInstance().getReference();
-            mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-            String current_uid = mCurrentUser.getUid();
-
-            StorageReference profileImage  = mImageStorage.child("profile_images").child(current_uid + ".jpg");
-            profileImage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Picasso.get().load(uri).into(userImageView);
-                }
-            });
+        public void setUserImage(String thumb_image, Context ctx) {
+            CircleImageView userImageView = mView.findViewById(R.id.user_single_image);
+            Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(userImageView);
         }
 }}
