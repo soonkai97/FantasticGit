@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -35,6 +36,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 
 import java.util.ArrayList;
@@ -120,7 +122,6 @@ public class ChatActivity extends AppCompatActivity {
         mRoofRef.child("Users").child(mChatUser).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 String image = snapshot.child("image").getValue().toString();
             }
 
@@ -192,6 +193,7 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void loadMoreMessages(){
         DatabaseReference messageRef = mRoofRef.child("message").child(mCurrentUserId).child(mChatUser);
@@ -336,12 +338,19 @@ public class ChatActivity extends AppCompatActivity {
             final String push_id = user_message_push.getKey();
 
             StorageReference filepath = mImageStorage.child("message_images").child(push_id + ".jpg");
+
             filepath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
                     if(task.isSuccessful()){
-                        final String download_url = task.getResult().getStorage().getDownloadUrl().toString();
+                       // final String download_url = task.getResult().getStorage().getDownloadUrl().toString();
+                        final Task <Uri> firebaseUri = task.getResult().getStorage().getDownloadUrl();
+                        firebaseUri.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+
+                                final String download_url = uri.toString();
 
                         Map messageMap = new HashMap();
                         messageMap.put("message",download_url);
@@ -363,6 +372,8 @@ public class ChatActivity extends AppCompatActivity {
                                     Log.d ("CHAT_LOG",error.getMessage().toString());
 
                                 }
+                            }
+                        });
                             }
                         });
                     }
