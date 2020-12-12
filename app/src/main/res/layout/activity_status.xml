@@ -10,8 +10,9 @@
         android:id="@+id/status_savebtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="260dp"
-        android:layout_marginTop="160dp"
+        android:layout_alignEnd="@+id/status_input"
+        android:layout_below="@+id/status_input"
+        android:layout_marginTop="20dp"
         android:backgroundTint="#ED0808"
         android:text="Save Changes"
         android:textColor="#FFFFFF" />
@@ -20,8 +21,10 @@
         android:id="@+id/status_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/status_appBar"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="40dp"
         android:layout_marginRight="20dp">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -32,7 +35,9 @@
 
     <include
         android:id="@+id/status_appBar"
-        layout="@layout/app_bar_layout" />
+        layout="@layout/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
 

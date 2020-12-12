@@ -16,6 +16,7 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/chat_app_bar"
         android:layout_above="@+id/LinearLayout"
+        android:layout_alignParentStart="true"
         android:id="@+id/message_swipe_layout">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -53,6 +54,7 @@
             android:layout_weight="8"
             android:ems="10"
             android:hint="Enter Message"
+            android:inputType="textPersonName"
             android:paddingBottom="12dp"
             android:paddingLeft="10dp"
             android:paddingTop="14dp"
