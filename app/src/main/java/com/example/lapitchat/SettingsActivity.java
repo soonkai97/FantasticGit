@@ -58,6 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
     // Storage Firebase
     private StorageReference mImageStorage;
     private ProgressDialog mProgressDialog;
+    private String downloadImageUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,11 +159,15 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
+                        downloadImageUrl = filepath.getDownloadUrl().toString();
                         filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
 
                                 Picasso.get().load(uri).into(mDisplayImage);
+                                mUserDatabase.child("image").setValue(downloadImageUrl);
+                                mUserDatabase.child("thumb_image").setValue(downloadImageUrl);
+
                             }
                         });
                     }
