@@ -44,9 +44,9 @@
 
     <Button
         android:id="@+id/setting_imagebtn"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="500dp"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="450dp"
         android:backgroundTint="#FFFFFF"
         android:text="@string/change_image"
         android:textColor="#9C27B0"
@@ -54,8 +54,8 @@
 
     <Button
         android:id="@+id/settings_statusbtn"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
+        android:layout_width="200dp"
+        android:layout_height="70dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="550dp"
         android:backgroundTint="#FB0B0B"
