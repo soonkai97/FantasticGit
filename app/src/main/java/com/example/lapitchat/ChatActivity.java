@@ -98,7 +98,7 @@ public class ChatActivity extends AppCompatActivity {
         //-----------Custom Action Bar Items -----------
 
         mTitleView = findViewById(R.id.custom_bar_title);
-        mProfileImage = findViewById(R.id.custom_bar_image);
+        mProfileImage = (CircleImageView) findViewById(R.id.custom_bar_image);
 
         mChatAddBtn = (ImageButton) findViewById(R.id.chat_add_btn);
         mChatSendBtn = (ImageButton) findViewById(R.id.chat_send_btn);
@@ -123,6 +123,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String image = snapshot.child("image").getValue().toString();
+                Picasso.get().load(image).into(mProfileImage);
             }
 
             @Override
