@@ -63,8 +63,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public void onBindViewHolder(final MessageViewHolder viewHolder, int i) {
-        //mAuth = FirebaseAuth.getInstance();
-        //mCurrentUserId = mAuth.getCurrentUser().getUid();
         Message c = mMessageList.get(i);
         String from_user = c.getFrom();
         String message_type = c.getType();
@@ -93,9 +91,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageText.setText(c.getMessage());
             viewHolder.messageImage.setVisibility(View.INVISIBLE);
         }
-        else
+        else if (message_type!=null && message_type.equals("image"))
         {
             viewHolder.messageText.setVisibility(View.INVISIBLE);
+            viewHolder.messageImage.setVisibility(View.VISIBLE);
             Picasso.get().load(c.getMessage()).placeholder(R.drawable.default_avatar).into(viewHolder.messageImage);
 
         }
