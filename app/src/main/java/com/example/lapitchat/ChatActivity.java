@@ -10,10 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -26,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,6 +46,8 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +78,7 @@ public class ChatActivity extends AppCompatActivity {
     private String mPrevKey = "";
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
+    private static final int IMAGE_PICK_CAMERA_CODE = 300;
     Uri image_rui = null;
 
     @Override
@@ -191,7 +197,9 @@ public class ChatActivity extends AppCompatActivity {
                             Intent cameraintent = new Intent();
                             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                             intent.putExtra(MediaStore.EXTRA_OUTPUT, image_rui);
-                            startActivityForResult(Intent.createChooser(cameraintent,"Select Image"), GALLERY_PICK);
+                            startActivityForResult(intent, IMAGE_PICK_CAMERA_CODE);
+
+
                         } else if (items[which].equals("Gallery")) {
                             Intent galleryIntent = new Intent();
                             galleryIntent.setType("image/*");
@@ -213,6 +221,63 @@ public class ChatActivity extends AppCompatActivity {
                 mCurrentPage++;
                 itemPos = 0;
                 loadMoreMessages();
+            }
+        });
+    }
+
+    private void sendCameraMessage() throws IOException {
+        final ProgressDialog progressDialog = new ProgressDialog(ChatActivity.this);
+        progressDialog.setTitle("sending image from camera");
+        progressDialog.show();
+
+        DatabaseReference user_message_push = mRoofRef.child("message").child(mCurrentUserId).child(mChatUser).push();
+        final String push_id = user_message_push.getKey();
+        String fileNameAndPath = "message_images/"+ push_id + ".jpg";
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), image_rui);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        final byte[] data = baos.toByteArray();
+        StorageReference ref = FirebaseStorage.getInstance().getReference().child(fileNameAndPath);
+        ref.putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                progressDialog.dismiss();
+                Task<Uri>uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                while(!uriTask.isSuccessful());
+                String downloadURI = uriTask.getResult().toString();
+                if (uriTask.isSuccessful())
+                {
+
+                    final String current_user_ref = "message/" + mCurrentUserId + "/" + mChatUser;
+                    final String chat_user_ref = "message/" + mChatUser + "/" + mCurrentUserId;
+
+                    Map messageMap = new HashMap();
+                    messageMap.put("message",downloadURI);
+                    messageMap.put("type","image");
+                    messageMap.put("time",ServerValue.TIMESTAMP);
+                    messageMap.put("from",mCurrentUserId);
+
+                    Map messageUserMap = new HashMap();
+                    messageUserMap.put(current_user_ref+ "/" + push_id, messageMap);
+                    messageUserMap.put(chat_user_ref + "/" + push_id,messageMap);
+
+                    mChatMessageView.setText("");
+
+                    mRoofRef.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                            if (error != null){
+                                Log.d("CHAT_LOG", error.getMessage().toString());
+                            }
+                        }
+                    });
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
             }
         });
     }
@@ -403,6 +468,14 @@ public class ChatActivity extends AppCompatActivity {
                 }
             });
 
+        }
+        else if (requestCode == IMAGE_PICK_CAMERA_CODE)
+        {
+            try {
+                sendCameraMessage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
