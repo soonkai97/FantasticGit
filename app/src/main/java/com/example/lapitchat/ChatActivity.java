@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -114,7 +115,7 @@ public class ChatActivity extends AppCompatActivity {
         mChatSendBtn = (ImageButton) findViewById(R.id.chat_send_btn);
         mChatMessageView = (EditText) findViewById(R.id.chat_message_view);
 
-        mAdapter = new MessageAdapter(messageList);
+        mAdapter = new MessageAdapter(messageList,ChatActivity.this);
 
         mMessagesList = findViewById(R.id.messages_list);
         mRefreshLayout = findViewById(R.id.message_swipe_layout);
@@ -185,9 +186,9 @@ public class ChatActivity extends AppCompatActivity {
         mChatAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final CharSequence[] items = {"Camera", "Gallery", "Cancel"};
+                final CharSequence[] items = {"Camera", "Gallery", "Location", "Cancel"};
                 AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
-                builder.setTitle("Select Image");
+                builder.setTitle("Select");
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -205,7 +206,44 @@ public class ChatActivity extends AppCompatActivity {
                             galleryIntent.setType("image/*");
                             galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                             startActivityForResult(Intent.createChooser(galleryIntent, "Select Image"), GALLERY_PICK);
-                        }else {
+                        }else if (items[which].equals("Location")) {
+                            GpsTracker gt = new GpsTracker(getApplicationContext());
+                            Location l = gt.getLocation();
+                            if (l == null) {
+                                Log.d("state","allow acess");
+                            } else {
+                                double lat = l.getLatitude();
+                                double lon = l.getLongitude();
+
+                                DatabaseReference user_message_push = mRoofRef.child("message").child(mCurrentUserId).child(mChatUser).push();
+                                String push_id = user_message_push.getKey();
+
+                                String current_user_ref = "message/" + mCurrentUserId + "/" +mChatUser;
+                                String chat_user_ref = "message/" + mChatUser + "/" +mCurrentUserId;
+                                Map messageMap = new HashMap();
+
+                                messageMap.put("message", String.valueOf(lat)+","+String.valueOf(lon) );
+                                messageMap.put("time",ServerValue.TIMESTAMP);
+                                messageMap.put("type", "location");
+                                messageMap.put("from",mCurrentUserId);
+
+                                Map messageUserMap = new HashMap();
+                                messageUserMap.put(current_user_ref+ "/" + push_id, messageMap);
+                                messageUserMap.put(chat_user_ref + "/" + push_id,messageMap);
+
+                                mChatMessageView.setText("");
+
+                                mRoofRef.updateChildren(messageUserMap, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                                        if (error != null){
+                                            Log.d("CHAT_LOG", error.getMessage().toString());
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                        else {
                             dialog.dismiss();
                         }
                     }

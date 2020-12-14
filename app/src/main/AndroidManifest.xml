@@ -38,6 +38,12 @@
             android:name=".UsersActivity"
             android:parentActivityName=".MainActivity" />
         <activity android:name=".MainActivity" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCi2YOUr2HUcx7VOw9C24z1ygCLikUU-Z4" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <activity
             android:name=".RegisterActivity"
             android:parentActivityName=".LoginActivity" />

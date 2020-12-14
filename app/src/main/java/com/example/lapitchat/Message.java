@@ -9,6 +9,7 @@ public class Message{
     private String message, type , from;
     private long time;
 
+
     public Message()
     {
 
@@ -61,7 +62,6 @@ public class Message{
     {
         this.from= from;
     }
-
 
     /* @Override
     protected void onCreate(Bundle savedInstanceState) {

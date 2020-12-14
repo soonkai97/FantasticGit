@@ -4,7 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,15 +33,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private FirebaseAuth mAuth;
     private String mCurrentUserId;
     private DatabaseReference mUserDatabase;
-    public MessageAdapter(List<Message> mMessageList)
+    private Context mContext;
+    public MessageAdapter(List<Message> mMessageList, Context mContext)
     {
         this.mMessageList = mMessageList;
+        this.mContext = mContext;
     }
 
     @Override
     public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.message_single_layout, parent , false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.message_single_layout, parent , false);
         return new MessageViewHolder(v);
 
     }
@@ -47,7 +52,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public TextView messageText;
         public CircleImageView profileImage;
         public TextView displayName;
-        public ImageView messageImage;
+        public ImageView messageImage,mapImage;
 
         public MessageViewHolder(View view)
         {
@@ -57,13 +62,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             profileImage = view.findViewById(R.id.message_profile_layout);
             displayName = view.findViewById(R.id.name_text_layout);
             messageImage = view.findViewById(R.id.message_image_layout);
-
+            mapImage = view.findViewById(R.id.message_map_layout);
         }
     }
 
     @Override
     public void onBindViewHolder(final MessageViewHolder viewHolder, int i) {
-        Message c = mMessageList.get(i);
+        final Message c = mMessageList.get(i);
         String from_user = c.getFrom();
         String message_type = c.getType();
 
@@ -92,14 +97,34 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageText.setVisibility(View.VISIBLE);
             viewHolder.messageImage.setVisibility(View.INVISIBLE);
             viewHolder.messageImage.setVisibility(View.GONE);
+            viewHolder.mapImage.setVisibility(View.INVISIBLE);
+            viewHolder.mapImage.setVisibility(View.GONE);
 
         }
-        else
+        else if (message_type!=null && message_type.equals("image"))
         {
             viewHolder.messageText.setVisibility(View.INVISIBLE);
             viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.mapImage.setVisibility(View.INVISIBLE);
+            viewHolder.mapImage.setVisibility(View.GONE);
             viewHolder.messageImage.setVisibility(View.VISIBLE);
             Picasso.get().load(c.getMessage()).placeholder(R.drawable.default_avatar).into(viewHolder.messageImage);
+
+        }
+        else if (message_type!=null && message_type.equals("location")){
+            viewHolder.messageText.setVisibility(View.INVISIBLE);
+            viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.messageImage.setVisibility(View.INVISIBLE);
+            viewHolder.messageImage.setVisibility(View.GONE);
+            viewHolder.mapImage.setVisibility(View.VISIBLE);
+            viewHolder.mapImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri i = Uri.parse(String.valueOf("google.navigation:q=" +c.getMessage()));
+                    Intent map = new Intent(Intent.ACTION_VIEW, i);
+                    mContext.startActivity(map);
+                }
+            });
 
         }
 
