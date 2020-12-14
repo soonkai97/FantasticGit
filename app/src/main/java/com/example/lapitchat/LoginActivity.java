@@ -106,6 +106,8 @@ public class LoginActivity extends AppCompatActivity {
     private  boolean checkAndRequestPermissions() {
         int permissionRecordAudio = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO);
+        int permissionCamera = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA);
         int permissionExternalStorage = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
         int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -113,6 +115,9 @@ public class LoginActivity extends AppCompatActivity {
 
         if (locationPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (permissionCamera != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA);
         }
         if (permissionExternalStorage != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);

@@ -9,10 +9,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,7 +73,7 @@ public class ChatActivity extends AppCompatActivity {
     private String mPrevKey = "";
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
-
+    Uri image_rui = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,12 +179,30 @@ public class ChatActivity extends AppCompatActivity {
         mChatAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent galleryIntent = new Intent();
-                galleryIntent.setType("image/*");
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(galleryIntent,"Select Image"), GALLERY_PICK);
-
+                final CharSequence[] items = {"Camera", "Gallery", "Cancel"};
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
+                builder.setTitle("Select Image");
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (items[which].equals("Camera")) {
+                            ContentValues cv = new ContentValues();
+                            image_rui = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
+                            Intent cameraintent = new Intent();
+                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT, image_rui);
+                            startActivityForResult(Intent.createChooser(cameraintent,"Select Image"), GALLERY_PICK);
+                        } else if (items[which].equals("Gallery")) {
+                            Intent galleryIntent = new Intent();
+                            galleryIntent.setType("image/*");
+                            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+                            startActivityForResult(Intent.createChooser(galleryIntent, "Select Image"), GALLERY_PICK);
+                        }else {
+                            dialog.dismiss();
+                        }
+                    }
+                });
+                builder.show();
             }
         });
 
