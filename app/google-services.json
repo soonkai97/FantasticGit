@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "237320052914-r7aett5vhkcjfccditqjmlqve1bimj3g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lapitchat",
+            "certificate_hash": "915c4518d29b9382efcffd582733747435d23be7"
+          }
+        },
+        {
           "client_id": "237320052914-i86f2cqsdeupegvnds35crnuddut582q.apps.googleusercontent.com",
           "client_type": 3
         }

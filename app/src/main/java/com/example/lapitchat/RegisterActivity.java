@@ -97,7 +97,7 @@ public class RegisterActivity extends AppCompatActivity {
                             mDatabase.setValue(userMap);
 
                             mRegProgress.dismiss();
-                            Intent mainIntent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            Intent mainIntent = new Intent(RegisterActivity.this, PhoneVerifyActivity.class);
                             mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(mainIntent);
                             finish();

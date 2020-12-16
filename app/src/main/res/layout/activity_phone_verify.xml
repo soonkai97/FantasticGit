@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:layout_marginTop="250dp"
+    tools:context=".PhoneVerifyActivity">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/getPhoneNumber"
+        android:inputType="phone"
+        android:digits="0123456789"
+        android:ems="11"
+        android:hint=" Enter Your Phone Number ">
+
+    </EditText>
+
+    <Button
+        android:id="@+id/sentOtp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/getPhoneNumber"
+        android:backgroundTint="#071783"
+        android:text=" Get OTP "
+        android:textColor="@android:color/white">
+
+    </Button>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/getOtp"
+        android:hint=" Enter Your OTP Which You Get "
+        android:inputType="phone"
+        android:layout_below="@+id/sentOtp"
+        android:digits="0123456789">
+
+    </EditText>
+
+    <Button
+        android:id="@+id/verifyOtp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/getOtp"
+        android:backgroundTint="#93032C"
+        android:text=" Verify Your OTP "
+        android:textColor="@android:color/white">
+
+    </Button>
+
+</RelativeLayout>
