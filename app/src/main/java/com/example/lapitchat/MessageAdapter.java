@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,12 +17,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -52,7 +57,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public TextView messageText;
         public CircleImageView profileImage;
         public TextView displayName;
-        public ImageView messageImage,mapImage;
+        public ImageView messageImage,mapImage,voiceImage, fileImage;
 
         public MessageViewHolder(View view)
         {
@@ -63,6 +68,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             displayName = view.findViewById(R.id.name_text_layout);
             messageImage = view.findViewById(R.id.message_image_layout);
             mapImage = view.findViewById(R.id.message_map_layout);
+            voiceImage = view.findViewById(R.id.message_voice_layout);
+            fileImage = view.findViewById(R.id.message_file_layout);
         }
     }
 
@@ -99,6 +106,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageImage.setVisibility(View.GONE);
             viewHolder.mapImage.setVisibility(View.INVISIBLE);
             viewHolder.mapImage.setVisibility(View.GONE);
+            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
+            viewHolder.voiceImage.setVisibility(View.GONE);
+            viewHolder.fileImage.setVisibility(View.INVISIBLE);
+            viewHolder.fileImage.setVisibility(View.GONE);
 
         }
         else if (message_type!=null && message_type.equals("image"))
@@ -107,6 +118,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageText.setVisibility(View.GONE);
             viewHolder.mapImage.setVisibility(View.INVISIBLE);
             viewHolder.mapImage.setVisibility(View.GONE);
+            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
+            viewHolder.voiceImage.setVisibility(View.GONE);
+            viewHolder.fileImage.setVisibility(View.INVISIBLE);
+            viewHolder.fileImage.setVisibility(View.GONE);
             viewHolder.messageImage.setVisibility(View.VISIBLE);
             Picasso.get().load(c.getMessage()).placeholder(R.drawable.default_avatar).into(viewHolder.messageImage);
 
@@ -116,6 +131,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageText.setVisibility(View.GONE);
             viewHolder.messageImage.setVisibility(View.INVISIBLE);
             viewHolder.messageImage.setVisibility(View.GONE);
+            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
+            viewHolder.voiceImage.setVisibility(View.GONE);
+            viewHolder.fileImage.setVisibility(View.INVISIBLE);
+            viewHolder.fileImage.setVisibility(View.GONE);
             viewHolder.mapImage.setVisibility(View.VISIBLE);
             viewHolder.mapImage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -126,6 +145,47 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
             });
 
+        }
+        else if (message_type != null && message_type.equals("voice")){
+            viewHolder.messageText.setVisibility(View.INVISIBLE);
+            viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.messageImage.setVisibility(View.INVISIBLE);
+            viewHolder.messageImage.setVisibility(View.GONE);
+            viewHolder.mapImage.setVisibility(View.INVISIBLE);
+            viewHolder.mapImage.setVisibility(View.GONE);
+            viewHolder.fileImage.setVisibility(View.INVISIBLE);
+            viewHolder.fileImage.setVisibility(View.GONE);
+            viewHolder.voiceImage.setVisibility(View.VISIBLE);
+            viewHolder.voiceImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final StorageReference audioStorage = FirebaseStorage.getInstance().getReference().child(c.getMessage());
+                    audioStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            playSound(uri);
+                        }
+                    });
+                }
+            });
+        }
+        else if (message_type != null && message_type.equals("file")){
+            viewHolder.messageText.setVisibility(View.INVISIBLE);
+            viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.messageImage.setVisibility(View.INVISIBLE);
+            viewHolder.messageImage.setVisibility(View.GONE);
+            viewHolder.mapImage.setVisibility(View.INVISIBLE);
+            viewHolder.mapImage.setVisibility(View.GONE);
+            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
+            viewHolder.voiceImage.setVisibility(View.GONE);
+            viewHolder.fileImage.setVisibility(View.VISIBLE);
+            viewHolder.fileImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent openintent = new Intent(Intent.ACTION_VIEW, Uri.parse(c.getMessage()));
+                    viewHolder.fileImage.getContext().startActivity(openintent);
+                }
+            });
         }
 
         /*if(from_user != null && from_user.equals(mCurrentUserId))
@@ -141,7 +201,31 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         viewHolder.messageText.setText(c.getMessage());*/
     }
+    private void playSound(Uri uri){
 
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(uri.toString());
+        }catch(Exception e){
+
+        }
+        mediaPlayer.prepareAsync();
+
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+
+                mp.start();
+            }
+        });
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                return false;
+            }
+        });
+    }
     @Override
     public int getItemCount() {
         return mMessageList.size();
