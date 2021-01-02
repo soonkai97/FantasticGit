@@ -139,7 +139,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mToolbar = (Toolbar) findViewById(R.id.login_toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("Welcome to Lapit Chat");
+        getSupportActionBar().setTitle("Welcome to Fantastic Git");
 
         mAuth = FirebaseAuth.getInstance();
 

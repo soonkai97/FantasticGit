@@ -15,12 +15,12 @@
     <string name="chat_page">Chat Page</string>
     <string name="friends_page">Friends Page</string>
     <string name="display_name">Display Name</string>
-    <string name="hi_there_i_am_using_lapit_chat_app">Hi there! I am using Lapit Chat App</string>
+    <string name="hi_there_i_am_using_lapit_chat_app">Hi there! I am using Fantastic Git App</string>
     <string name="change_name">Change Name</string>
     <string name="change_status">Change Status</string>
     <string name="change_image">Change Image</string>
 
-    <string name="biometric_title">Lapitchat</string>
+    <string name="biometric_title">Fantastic Git</string>
     <string name="biometric_subtitle">Confirm fingerprint to continue </string>
 
     <string name="biometric_negative_button_text">CANCEL</string>

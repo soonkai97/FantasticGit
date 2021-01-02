@@ -86,11 +86,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                             FirebaseUser current_user = FirebaseAuth.getInstance().getCurrentUser();
                             String uid = current_user.getUid();
-                            //Pointing to root directory which is the lapit chat directory with the child name of users with the child of userid
+                            //Pointing to root directory which is the Fantastic git directory with the child name of users with the child of userid
                             mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
                             HashMap<String, String> userMap = new HashMap<>();
                             userMap.put("name", display_name);
-                            userMap.put("status", "Hi there! I am using Lapit Chat App.");
+                            userMap.put("status", "Hi there! I am using Fantastic Git App.");
                             userMap.put("image", "default");
                             userMap.put("thumb_image", "default");
 

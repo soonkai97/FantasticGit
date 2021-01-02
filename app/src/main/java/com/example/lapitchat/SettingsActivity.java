@@ -58,7 +58,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     // Storage Firebase
     private StorageReference mImageStorage;
-    private ProgressDialog mProgressDialog;
     private String downloadImageUrl;
 
     @Override
@@ -203,16 +202,4 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-
-    public static String random (){
-        Random generator = new Random();
-        StringBuilder randomStringBuilder = new StringBuilder();
-        int randomLength = generator.nextInt(10);
-        char tempChar;
-        for (int i =0; i<randomLength;i++){
-            tempChar = (char) (generator.nextInt(96)+32);
-            randomStringBuilder.append(tempChar);
-        }
-        return randomStringBuilder.toString();
-    }
 }

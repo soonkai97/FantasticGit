@@ -23,7 +23,7 @@ public class GpsTracker implements LocationListener {
 
     public Location getLocation(){
         if (ActivityCompat.checkSelfPermission( context, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("fist","error");
+            Log.e("first","error");
             return null;
         }
         try {
@@ -34,7 +34,7 @@ public class GpsTracker implements LocationListener {
                 Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 return loc;
             }else{
-                Log.e("sec","errpr");
+                Log.e("second","error");
             }
         }catch (Exception e){
             e.printStackTrace();

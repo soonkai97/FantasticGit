@@ -35,8 +35,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
     private List<Message> mMessageList;
-    private FirebaseAuth mAuth;
-    private String mCurrentUserId;
     private DatabaseReference mUserDatabase;
     private Context mContext;
     public MessageAdapter(List<Message> mMessageList, Context mContext)
@@ -57,7 +55,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public TextView messageText;
         public CircleImageView profileImage;
         public TextView displayName;
-        public ImageView messageImage,mapImage,voiceImage, fileImage;
+        public ImageView messageImage,mapImage, fileImage;
 
         public MessageViewHolder(View view)
         {
@@ -68,7 +66,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             displayName = view.findViewById(R.id.name_text_layout);
             messageImage = view.findViewById(R.id.message_image_layout);
             mapImage = view.findViewById(R.id.message_map_layout);
-            voiceImage = view.findViewById(R.id.message_voice_layout);
             fileImage = view.findViewById(R.id.message_file_layout);
         }
     }
@@ -106,8 +103,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageImage.setVisibility(View.GONE);
             viewHolder.mapImage.setVisibility(View.INVISIBLE);
             viewHolder.mapImage.setVisibility(View.GONE);
-            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
-            viewHolder.voiceImage.setVisibility(View.GONE);
             viewHolder.fileImage.setVisibility(View.INVISIBLE);
             viewHolder.fileImage.setVisibility(View.GONE);
 
@@ -118,8 +113,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageText.setVisibility(View.GONE);
             viewHolder.mapImage.setVisibility(View.INVISIBLE);
             viewHolder.mapImage.setVisibility(View.GONE);
-            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
-            viewHolder.voiceImage.setVisibility(View.GONE);
             viewHolder.fileImage.setVisibility(View.INVISIBLE);
             viewHolder.fileImage.setVisibility(View.GONE);
             viewHolder.messageImage.setVisibility(View.VISIBLE);
@@ -131,8 +124,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageText.setVisibility(View.GONE);
             viewHolder.messageImage.setVisibility(View.INVISIBLE);
             viewHolder.messageImage.setVisibility(View.GONE);
-            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
-            viewHolder.voiceImage.setVisibility(View.GONE);
             viewHolder.fileImage.setVisibility(View.INVISIBLE);
             viewHolder.fileImage.setVisibility(View.GONE);
             viewHolder.mapImage.setVisibility(View.VISIBLE);
@@ -146,29 +137,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             });
 
         }
-        else if (message_type != null && message_type.equals("voice")){
-            viewHolder.messageText.setVisibility(View.INVISIBLE);
-            viewHolder.messageText.setVisibility(View.GONE);
-            viewHolder.messageImage.setVisibility(View.INVISIBLE);
-            viewHolder.messageImage.setVisibility(View.GONE);
-            viewHolder.mapImage.setVisibility(View.INVISIBLE);
-            viewHolder.mapImage.setVisibility(View.GONE);
-            viewHolder.fileImage.setVisibility(View.INVISIBLE);
-            viewHolder.fileImage.setVisibility(View.GONE);
-            viewHolder.voiceImage.setVisibility(View.VISIBLE);
-            viewHolder.voiceImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final StorageReference audioStorage = FirebaseStorage.getInstance().getReference().child(c.getMessage());
-                    audioStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            playSound(uri);
-                        }
-                    });
-                }
-            });
-        }
         else if (message_type != null && message_type.equals("file")){
             viewHolder.messageText.setVisibility(View.INVISIBLE);
             viewHolder.messageText.setVisibility(View.GONE);
@@ -176,8 +144,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             viewHolder.messageImage.setVisibility(View.GONE);
             viewHolder.mapImage.setVisibility(View.INVISIBLE);
             viewHolder.mapImage.setVisibility(View.GONE);
-            viewHolder.voiceImage.setVisibility(View.INVISIBLE);
-            viewHolder.voiceImage.setVisibility(View.GONE);
             viewHolder.fileImage.setVisibility(View.VISIBLE);
             viewHolder.fileImage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -187,45 +153,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
             });
         }
-
-        /*if(from_user != null && from_user.equals(mCurrentUserId))
-        {
-            viewHolder.messageText.setBackgroundColor(Color.WHITE);
-            viewHolder.messageText.setTextColor(Color.BLACK);
-        }
-        else
-        {
-            viewHolder.messageText.setBackgroundResource(R.drawable.message_text_background);
-            viewHolder.messageText.setTextColor(Color.WHITE);
-        }
-
-        viewHolder.messageText.setText(c.getMessage());*/
     }
-    private void playSound(Uri uri){
 
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mediaPlayer.setDataSource(uri.toString());
-        }catch(Exception e){
-
-        }
-        mediaPlayer.prepareAsync();
-
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-
-                mp.start();
-            }
-        });
-        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                return false;
-            }
-        });
-    }
     @Override
     public int getItemCount() {
         return mMessageList.size();

@@ -33,9 +33,6 @@ public class UsersActivity extends AppCompatActivity {
     private RecyclerView mUserList;
     private DatabaseReference mUserDatabase;
     private FirebaseRecyclerAdapter<Users, UsersViewHolder> firebaseRecyclerAdapter;
-    private StorageReference mImageStorage;
-
-    private FirebaseUser mCurrentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

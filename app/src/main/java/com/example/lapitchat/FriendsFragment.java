@@ -36,11 +36,6 @@ import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-/*
- * A simple {@link Fragment} subclass.
- * Use the {@link FriendsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FriendsFragment extends Fragment {
 
     private RecyclerView mFriendList;
@@ -48,9 +43,7 @@ public class FriendsFragment extends Fragment {
     private FirebaseAuth mAuth;
     private String mCurrent_user_id;
     private View mMainView;
-    private StorageReference mImageStorage;
     private DatabaseReference mUserDatabase;
-    private FirebaseUser mCurrentUser;
     private FirebaseRecyclerAdapter<Friends, FriendsViewHolder> friendsRecyclerViewAdapter;
 
     @Override
